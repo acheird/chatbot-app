@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.chatbot.chatbotapp.dto.LoginRequest;
+import com.chatbot.chatbotapp.dto.LoginResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
@@ -41,12 +42,17 @@ public class UserController {
         }
 
         User user = userOpt.get();
+
         if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            return ResponseEntity.ok("Login successful");
+            LoginResponse response = new LoginResponse(user.getId(), user.getName(), user.getEmail());
+            return ResponseEntity.ok(response);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
     }
+
+
+
 
     // Get user by email
     @GetMapping("/email")
