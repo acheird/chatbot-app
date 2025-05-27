@@ -25,8 +25,14 @@ public class UserService implements UserDetailsService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // Create or save user
+    // Save or update user
     public User saveUser(User user) {
+        return userRepository.save(user);
+    }
+
+    // Register user with password encoding
+    public User registerUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
@@ -40,24 +46,21 @@ public class UserService implements UserDetailsService {
         return userRepository.findById(id);
     }
 
-    // Delete user
+    // Delete user by ID
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
 
+    // List all users
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
+    // Load user by email for authentication
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
         return new CustomUserDetails(user);
-    }
-
-    public User registerUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
     }
 }

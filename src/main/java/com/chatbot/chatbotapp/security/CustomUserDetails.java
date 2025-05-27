@@ -21,7 +21,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Add roles or permissions here if needed
+        // No roles for now
         return Collections.emptyList();
     }
 
@@ -32,12 +32,12 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return user.getEmail(); // Use email for login
+        return user.getEmail();
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return true; // You can add real logic later
+        return true;
     }
 
     @Override
