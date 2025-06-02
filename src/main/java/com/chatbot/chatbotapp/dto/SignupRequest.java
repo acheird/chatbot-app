@@ -4,7 +4,7 @@ package com.chatbot.chatbotapp.dto;
 public class SignupRequest {
     private String email;
     private String password;
-    private String username; // Optional, add if you want to capture username
+    private String username;
 
     // Constructors
     public SignupRequest() {}
@@ -15,7 +15,6 @@ public class SignupRequest {
         this.username = username;
     }
 
-    // Getters and Setters
     public String getEmail() {
         return email;
     }
