@@ -1,0 +1,74 @@
+package com.chatbot.chatbotapp.service;
+
+import com.chatbot.chatbotapp.model.Chat;
+import com.chatbot.chatbotapp.model.User;
+import com.chatbot.chatbotapp.repository.ChatRepository;
+import com.chatbot.chatbotapp.repository.UserRepository;
+import com.chatbot.chatbotapp.security.CustomUserDetails;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class ChatService {
+
+    @Autowired
+    private ChatRepository chatRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    public Chat createChat(Long userId, String title) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Chat chat = new Chat(title, user);
+        return chatRepository.save(chat);
+    }
+
+    public List<Chat> getChatsByUserId(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return chatRepository.findByUser(user);
+    }
+
+    // Ownership check added
+    public Optional<Chat> getChatById(Long chatId) {
+        User currentUser = getCurrentUser();
+
+        return chatRepository.findById(chatId)
+                .filter(chat -> chat.getUser().getId().equals(currentUser.getId()));
+    }
+
+    // Or version that throws error if unauthorized
+    public Chat getChatByIdWithOwnershipCheck(Long chatId) {
+        User currentUser = getCurrentUser();
+
+        Chat chat = chatRepository.findById(chatId)
+                .orElseThrow(() -> new RuntimeException("Chat not found"));
+
+        if (!chat.getUser().getId().equals(currentUser.getId())) {
+            throw new RuntimeException("Access denied: You do not own this chat");
+        }
+
+        return chat;
+    }
+
+    // Ownership check added
+    public void deleteChat(Long chatId) {
+        Chat chat = getChatByIdWithOwnershipCheck(chatId);
+        chatRepository.delete(chat);
+    }
+
+    private User getCurrentUser() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof CustomUserDetails customUserDetails) {
+            return customUserDetails.getUser();
+        }
+        throw new RuntimeException("Unauthenticated: No user in security context");
+    }
+}
