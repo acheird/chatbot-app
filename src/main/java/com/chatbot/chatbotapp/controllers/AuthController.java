@@ -35,15 +35,12 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody SignupRequest signupRequest) {
-        System.out.println("SIGNUP - PasswordEncoder: " + passwordEncoder.getClass());
-
         if (userService.getUserByEmail(signupRequest.getEmail()).isPresent()) {
             return ResponseEntity.badRequest().body("Email already in use");
         }
 
         User user = new User();
         user.setEmail(signupRequest.getEmail());
-        user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
         user.setName(signupRequest.getUsername());
 
         User newUser = userService.registerUser(user);
@@ -57,11 +54,8 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        System.out.println("LOGIN - PasswordEncoder: " + passwordEncoder.getClass());
-
         Optional<User> userOpt = userService.getUserByEmail(loginRequest.getEmail());
         if (userOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("The User does not exist!");
@@ -69,18 +63,12 @@ public class AuthController {
 
         User user = userOpt.get();
 
-        System.out.println("Login email: " + loginRequest.getEmail());
-        System.out.println("Login raw password: " + loginRequest.getPassword());
-        System.out.println("Stored encoded password: " + user.getPassword());
-        System.out.println("Password match: " + passwordEncoder.matches(loginRequest.getPassword(), user.getPassword()));
-
-
-
-        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+        // TEMPORARY: Simple string comparison
+        if (!loginRequest.getPassword().equals(user.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
 
-
+        // JWT creation remains the same
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("chatbot-app")
@@ -98,28 +86,27 @@ public class AuthController {
                 "email", user.getEmail(),
                 "name", user.getName()
         ));
-
     }
 
-//    @GetMapping("/test-bcrypt")
-//    public ResponseEntity<?> testBcrypt() {
-//        String rawPassword = "123456";
-//
-//        String hash1 = passwordEncoder.encode(rawPassword);
-//        String hash2 = passwordEncoder.encode(rawPassword);
-//
-//        boolean match1 = passwordEncoder.matches(rawPassword, hash1);
-//        boolean match2 = passwordEncoder.matches(rawPassword, hash2);
-//
-//        return ResponseEntity.ok(Map.of(
-//                "rawPassword", rawPassword,
-//                "hash1", hash1,
-//                "hash2", hash2,
-//                "match1", match1,
-//                "match2", match2,
-//                "encoderClass", passwordEncoder.getClass().getName()
-//        ));
-//    }
+    @GetMapping("/test-bcrypt")
+    public ResponseEntity<?> testBcrypt() {
+        String rawPassword = "123456";
+
+        String hash1 = passwordEncoder.encode(rawPassword);
+        String hash2 = passwordEncoder.encode(rawPassword);
+
+        boolean match1 = passwordEncoder.matches(rawPassword, hash1);
+        boolean match2 = passwordEncoder.matches(rawPassword, hash2);
+
+        return ResponseEntity.ok(Map.of(
+                "rawPassword", rawPassword,
+                "hash1", hash1,
+                "hash2", hash2,
+                "match1", match1,
+                "match2", match2,
+                "encoderClass", passwordEncoder.getClass().getName()
+        ));
+    }
 
 
 
