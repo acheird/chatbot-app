@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Collections;
 
 @RestController
 @RequestMapping("/chats")
@@ -56,9 +57,11 @@ public class ChatController {
 
         try {
             List<Chat> chats = chatService.getChatsByUserId(currentUserId);
+            // Add @JsonIgnore to any circular references in your Chat entity
             return ResponseEntity.ok(chats);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching chats");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(Collections.singletonMap("error", "Error fetching chats"));
         }
     }
 
