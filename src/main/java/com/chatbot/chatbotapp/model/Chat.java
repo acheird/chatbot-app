@@ -1,31 +1,37 @@
 package com.chatbot.chatbotapp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "chats")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Chat {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnoreProperties({"chats", "password"}) // Prevent infinite recursion and hide password
     private User user;
 
-    @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("chat") // Prevent circular reference in JSON
     private List<Message> messages = new ArrayList<>();
 
-
+    // Constructors
     public Chat() {
         this.createdAt = LocalDateTime.now();
     }
@@ -36,6 +42,7 @@ public class Chat {
         this.createdAt = LocalDateTime.now();
     }
 
+    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -50,6 +57,10 @@ public class Chat {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public User getUser() {
@@ -68,6 +79,7 @@ public class Chat {
         this.messages = messages;
     }
 
+    // Helper methods for bidirectional relationship
     public void addMessage(Message message) {
         messages.add(message);
         message.setChat(this);
