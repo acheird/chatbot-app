@@ -1,52 +1,51 @@
 package com.chatbot.chatbotapp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "messages")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Message {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String role; // "user" or "assistant"
-
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
+
+    @Column(nullable = false)
+    private String role; // "user" or "assistant"
 
     @Column(nullable = false)
     private LocalDateTime timestamp;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_id", nullable = false)
+    @JsonIgnoreProperties({"messages", "user"}) // Prevent circular references
     private Chat chat;
 
-    // --- Constructors ---
-
-    public Message() {}
-
-    public Message(String role, String content, LocalDateTime timestamp, Chat chat) {
-        this.role = role;
-        this.content = content;
-        this.timestamp = timestamp;
-        this.chat = chat;
+    // Constructors
+    public Message() {
+        this.timestamp = LocalDateTime.now();
     }
 
-    // --- Getters and Setters ---
+    public Message(String content, String role, Chat chat) {
+        this.content = content;
+        this.role = role;
+        this.chat = chat;
+        this.timestamp = LocalDateTime.now();
+    }
 
+    // Getters and Setters
     public Long getId() {
         return id;
     }
 
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getContent() {
@@ -55,6 +54,14 @@ public class Message {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public LocalDateTime getTimestamp() {
