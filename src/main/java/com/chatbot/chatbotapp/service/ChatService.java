@@ -5,6 +5,7 @@ import com.chatbot.chatbotapp.model.User;
 import com.chatbot.chatbotapp.repository.ChatRepository;
 import com.chatbot.chatbotapp.repository.UserRepository;
 import com.chatbot.chatbotapp.security.CustomUserDetails;
+import com.chatbot.chatbotapp.util.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,6 @@ public class ChatService {
     public Chat createChat(Long userId, String title) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
         Chat chat = new Chat(title, user);
         return chatRepository.save(chat);
     }
@@ -32,22 +32,15 @@ public class ChatService {
     public List<Chat> getChatsByUserId(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
         return chatRepository.findByUser(user);
     }
 
-    // Ownership check added
     public Optional<Chat> getChatById(Long chatId) {
-        User currentUser = getCurrentUser();
-
-        return chatRepository.findById(chatId)
-                .filter(chat -> chat.getUser().getId().equals(currentUser.getId()));
+        return chatRepository.findById(chatId);
     }
 
-    // Or version that throws error if unauthorized
     public Chat getChatByIdWithOwnershipCheck(Long chatId) {
         User currentUser = getCurrentUser();
-
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new RuntimeException("Chat not found"));
 
@@ -58,10 +51,20 @@ public class ChatService {
         return chat;
     }
 
-    // Ownership check added
     public void deleteChat(Long chatId) {
         Chat chat = getChatByIdWithOwnershipCheck(chatId);
         chatRepository.delete(chat);
+    }
+
+    public boolean isOwner(Long chatId, Long userId) {
+        return chatRepository.findById(chatId)
+                .map(chat -> chat.getUser().getId().equals(userId))
+                .orElse(false);
+    }
+
+    public List<Chat> getChatsForCurrentUser() {
+        User currentUser = getCurrentUser();
+        return chatRepository.findByUser(currentUser);
     }
 
     private User getCurrentUser() {
