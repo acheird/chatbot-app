@@ -71,7 +71,7 @@ export default function LoginPage() {
                     <div className="header-content">
                         <div className="header-brand">
                             <img
-                                src="./bootcamp-2025.03-logo.jpg"
+                                src="./ai.png"
                                 alt="Logo"
                                 className="header-logo"
                             />

@@ -197,7 +197,7 @@ export default function ChatPage() {
                 <header>
                     <div className="header-content">
                         <div className="header-brand">
-                            <img src="/bootcamp-2025.03-logo.jpg" alt="Logo" className="header-logo" />
+                            <img src="/ai.png" alt="Logo" className="header-logo" />
                             <div className="header-title">Chat Application</div>
                         </div>
                         <div className="profile-dropdown">
