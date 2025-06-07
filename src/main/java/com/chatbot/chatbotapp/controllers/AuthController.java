@@ -36,12 +36,14 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody SignupRequest signupRequest) {
         if (userService.getUserByEmail(signupRequest.getEmail()).isPresent()) {
-            return ResponseEntity.badRequest().body("Email already in use");
+            return ResponseEntity.badRequest().body(Map.of("error", "Email already in use"));
+
         }
 
         User user = new User();
         user.setEmail(signupRequest.getEmail());
         user.setName(signupRequest.getUsername());
+        user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
 
         User newUser = userService.registerUser(user);
 

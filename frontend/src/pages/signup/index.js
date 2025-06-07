@@ -75,9 +75,17 @@ export default function SignupPage() {
             });
 
             if (!response.ok) {
-                const errorData = await response.text();
-                throw new Error(errorData || "Signup failed");
+                let errorMessage = "Signup failed";
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.error || errorData.message || JSON.stringify(errorData) || errorMessage;
+                } catch {
+                    const errorText = await response.text();
+                    if (errorText) errorMessage = errorText;
+                }
+                throw new Error(errorMessage);
             }
+
 
             const data = await response.json();
 
@@ -103,7 +111,7 @@ export default function SignupPage() {
                     <div className="header-content">
                         <div className="header-brand">
                             <img
-                                src="./bootcamp-2025.03-logo.jpg"
+                                src="./ai.png"
                                 alt="Logo"
                                 className="header-logo"
                             />
