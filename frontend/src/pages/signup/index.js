@@ -83,7 +83,9 @@ export default function SignupPage() {
                     const errorText = await response.text();
                     if (errorText) errorMessage = errorText;
                 }
-                throw new Error(errorMessage);
+                setError(errorMessage);
+                setLoading(false);
+                return;
             }
 
 
