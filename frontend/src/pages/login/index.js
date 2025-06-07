@@ -1,14 +1,13 @@
 import Head from "next/head";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useRouter } from "next/router";
 
 export default function LoginPage() {
     const router = useRouter();
-
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -21,34 +20,43 @@ export default function LoginPage() {
     const handlePasswordChange = (e) => setPassword(e.target.value);
 
     const handleLogin = async (e) => {
-        e.preventDefault(); // Prevent page reload on form submit
+        e.preventDefault();
         setLoading(true);
+        setError("");
 
         try {
-            const credentials = btoa(`${email}:${password}`);
+            const response = await fetch("http://localhost:8080/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password,
+                }),
+            });
 
-            const response = await axios.post(
-                "http://localhost:8080/auth/login",
-                {}, // No body required, credentials are in headers
-                {
-                    headers: {
-                        Authorization: `Basic ${credentials}`,
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
+            if (!response.ok) {
+                const errorData = await response.text();
+                throw new Error(errorData || "Login failed");
+            }
 
-            // Save JWT token to localStorage
-            localStorage.setItem("token", response.data.token);
+            const data = await response.json();
+
+            // Save JWT token and user info to localStorage
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("user", JSON.stringify({
+                id: data.id,
+                email: data.email,
+                name: data.name
+            }));
 
             setLoading(false);
-            router.push("/chat"); // Redirect to chat page
+            router.push("/chat");
         } catch (error) {
             console.error("Login failed", error);
-            alert("Login failed. Please check your email and password.");
+            setError(error.message || "Login failed. Please check your credentials.");
             setLoading(false);
-            setEmail("");
-            setPassword("");
         }
     };
 
@@ -76,6 +84,19 @@ export default function LoginPage() {
                     <form className="login-form" onSubmit={handleLogin}>
                         <h2>Login</h2>
 
+                        {error && (
+                            <div className="error-message" style={{
+                                color: 'red',
+                                marginBottom: '1rem',
+                                padding: '0.5rem',
+                                border: '1px solid red',
+                                borderRadius: '4px',
+                                backgroundColor: '#ffebee'
+                            }}>
+                                {error}
+                            </div>
+                        )}
+
                         <div className="form-group">
                             <label htmlFor="login-email">Email</label>
                             <input
@@ -86,6 +107,7 @@ export default function LoginPage() {
                                 onChange={handleEmailChange}
                                 required
                                 autoComplete="username"
+                                disabled={loading}
                             />
                         </div>
 
@@ -99,6 +121,7 @@ export default function LoginPage() {
                                 onChange={handlePasswordChange}
                                 required
                                 autoComplete="current-password"
+                                disabled={loading}
                             />
                         </div>
 
@@ -106,6 +129,15 @@ export default function LoginPage() {
                             <button type="submit" disabled={loading} className="btn btn-primary">
                                 {loading ? "Signing In…" : "Sign In"}
                             </button>
+                        </div>
+
+                        <div className="form-footer">
+                            <p>
+                                Don't have an account?{" "}
+                                <a href="/signup" style={{ color: "#007bff", textDecoration: "none" }}>
+                                    Sign up here
+                                </a>
+                            </p>
                         </div>
                     </form>
                 </main>
