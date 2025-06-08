@@ -3,6 +3,7 @@ package com.chatbot.chatbotapp.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,27 +24,18 @@ public class User {
     @Column(nullable = false)
     private String name;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    // Remove or add @JsonIgnore to prevent circular references
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnoreProperties("user") // This prevents infinite recursion
+    @JsonIgnoreProperties("user")
     private List<Chat> chats;
 
-    // Constructors
-    public User() {
-        this.createdAt = LocalDateTime.now();
-    }
+    public User() {}
 
     public User(String email, String password, String name) {
         this.email = email;
         this.password = password;
         this.name = name;
-        this.createdAt = LocalDateTime.now();
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -74,14 +66,6 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
     }
 
     public List<Chat> getChats() {
