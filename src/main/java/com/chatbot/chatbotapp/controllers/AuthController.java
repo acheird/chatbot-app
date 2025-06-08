@@ -1,6 +1,7 @@
 package com.chatbot.chatbotapp.controllers;
 
 import com.chatbot.chatbotapp.dto.LoginRequest;
+import com.chatbot.chatbotapp.dto.LoginResponse;
 import com.chatbot.chatbotapp.dto.SignupRequest;
 import com.chatbot.chatbotapp.dto.SignupResponse;
 import com.chatbot.chatbotapp.model.User;
@@ -49,7 +50,7 @@ public class AuthController {
 
         SignupResponse response = new SignupResponse(
                 "User registered successfully",
-                newUser.getId().toString(),
+                newUser.getId(),
                 newUser.getEmail()
         );
 
@@ -82,34 +83,34 @@ public class AuthController {
 
         String token = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
 
-        return ResponseEntity.ok(Map.of(
-                "token", token,
-                "id", user.getId(),
-                "email", user.getEmail(),
-                "name", user.getName()
-        ));
+        LoginResponse response = new LoginResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                token
+        );
+
+        return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/test-bcrypt")
-    public ResponseEntity<?> testBcrypt() {
-        String rawPassword = "123456";
-
-        String hash1 = passwordEncoder.encode(rawPassword);
-        String hash2 = passwordEncoder.encode(rawPassword);
-
-        boolean match1 = passwordEncoder.matches(rawPassword, hash1);
-        boolean match2 = passwordEncoder.matches(rawPassword, hash2);
-
-        return ResponseEntity.ok(Map.of(
-                "rawPassword", rawPassword,
-                "hash1", hash1,
-                "hash2", hash2,
-                "match1", match1,
-                "match2", match2,
-                "encoderClass", passwordEncoder.getClass().getName()
-        ));
-    }
-
-
+//    @GetMapping("/test-bcrypt")
+//    public ResponseEntity<?> testBcrypt() {
+//        String rawPassword = "123456";
+//
+//        String hash1 = passwordEncoder.encode(rawPassword);
+//        String hash2 = passwordEncoder.encode(rawPassword);
+//
+//        boolean match1 = passwordEncoder.matches(rawPassword, hash1);
+//        boolean match2 = passwordEncoder.matches(rawPassword, hash2);
+//
+//        return ResponseEntity.ok(Map.of(
+//                "rawPassword", rawPassword,
+//                "hash1", hash1,
+//                "hash2", hash2,
+//                "match1", match1,
+//                "match2", match2,
+//                "encoderClass", passwordEncoder.getClass().getName()
+//        ));
+//    }
 
 }
