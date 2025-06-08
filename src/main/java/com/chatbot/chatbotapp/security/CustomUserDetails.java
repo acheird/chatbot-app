@@ -7,6 +7,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
+// Unnecessary for now
+// Keep it in case there is need for User Roles
 public class CustomUserDetails implements UserDetails {
 
     private final User user;
@@ -21,7 +23,6 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // No roles for now
         return Collections.emptyList();
     }
 
