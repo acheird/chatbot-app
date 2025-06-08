@@ -1,12 +1,10 @@
 package com.chatbot.chatbotapp.dto;
 
-// SignupRequest.java
 public class SignupRequest {
     private String email;
     private String password;
     private String username;
 
-    // Constructors
     public SignupRequest() {}
 
     public SignupRequest(String email, String password, String username) {

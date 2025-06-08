@@ -1,12 +1,10 @@
 package com.chatbot.chatbotapp.dto;
 
-// SignupResponse.java
 public class SignupResponse {
     private String message;
     private String userId;
     private String email;
 
-    // Constructors
     public SignupResponse() {}
 
     public SignupResponse(String message, String userId, String email) {
@@ -15,7 +13,6 @@ public class SignupResponse {
         this.email = email;
     }
 
-    // Getters and Setters
     public String getMessage() {
         return message;
     }
