@@ -2,12 +2,12 @@ package com.chatbot.chatbotapp.dto;
 
 public class SignupResponse {
     private String message;
-    private String userId;
+    private Long userId;
     private String email;
 
     public SignupResponse() {}
 
-    public SignupResponse(String message, String userId, String email) {
+    public SignupResponse(String message, Long userId, String email) {
         this.message = message;
         this.userId = userId;
         this.email = email;
@@ -20,10 +20,10 @@ public class SignupResponse {
         this.message = message;
     }
 
-    public String getUserId() {
+    public Long getUserId() {
         return userId;
     }
-    public void setUserId(String userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 
