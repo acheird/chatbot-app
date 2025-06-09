@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -21,7 +19,6 @@ public class UserController {
         this.userService = userService;
     }
 
-    // Get user by email
     @GetMapping("/email")
     public ResponseEntity<?> getUserByEmail(@RequestParam String email) {
         Optional<User> userOpt = userService.getUserByEmail(email);
@@ -32,7 +29,6 @@ public class UserController {
         }
     }
 
-    // Get user by ID
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
         Optional<User> userOpt = userService.getUserById(id);
@@ -43,7 +39,6 @@ public class UserController {
         }
     }
 
-    // Delete user by ID
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         Optional<User> userOpt = userService.getUserById(id);
@@ -55,10 +50,10 @@ public class UserController {
         }
     }
 
-    // Get all users
-    @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
-        return ResponseEntity.ok(users);
-    }
+    // Keep it in case there is user roles implementation
+//    @GetMapping
+//    public ResponseEntity<List<User>> getAllUsers() {
+//        List<User> users = userService.getAllUsers();
+//        return ResponseEntity.ok(users);
+//    }
 }

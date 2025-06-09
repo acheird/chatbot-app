@@ -1,7 +1,6 @@
 package com.chatbot.chatbotapp.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -24,10 +23,9 @@ public class Message {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_id", nullable = false)
-    @JsonIgnoreProperties({"messages", "user"}) // Prevent circular references
+    @JsonIgnoreProperties({"messages", "user"})
     private Chat chat;
 
-    // Constructors
     public Message() {
         this.timestamp = LocalDateTime.now();
     }
@@ -39,7 +37,6 @@ public class Message {
         this.timestamp = LocalDateTime.now();
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }

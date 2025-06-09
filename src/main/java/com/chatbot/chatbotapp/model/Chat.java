@@ -2,7 +2,6 @@ package com.chatbot.chatbotapp.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,11 +23,11 @@ public class Chat {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnoreProperties({"chats", "password"}) // Prevent infinite recursion and hide password
+    @JsonIgnoreProperties({"chats", "password"})
     private User user;
 
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnoreProperties("chat") // Prevent circular reference in JSON
+    @JsonIgnoreProperties("chat")
     private List<Message> messages = new ArrayList<>();
 
     // Constructors
@@ -42,7 +41,6 @@ public class Chat {
         this.createdAt = LocalDateTime.now();
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -79,7 +77,6 @@ public class Chat {
         this.messages = messages;
     }
 
-    // Helper methods for bidirectional relationship
     public void addMessage(Message message) {
         messages.add(message);
         message.setChat(this);
