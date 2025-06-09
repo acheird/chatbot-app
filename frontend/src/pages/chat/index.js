@@ -1,6 +1,8 @@
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import styles from "@/styles/chatPage.module.css";
+
 
 export default function ChatPage() {
     const [threads, setThreads] = useState([]);
@@ -101,7 +103,7 @@ export default function ChatPage() {
             if (!res.ok) throw new Error("Failed to create thread");
 
             const newThread = await res.json();
-            setThreads(prev => [newThread, ...prev]);
+            setThreads((prev) => [newThread, ...prev]);
             setNewThreadTitle("");
             setShowNewThreadModal(false);
             setSelectedThread(newThread);
@@ -127,7 +129,7 @@ export default function ChatPage() {
 
             if (!res.ok) throw new Error("Failed to delete thread");
 
-            setThreads(prev => prev.filter(t => t.id !== threadId));
+            setThreads((prev) => prev.filter((t) => t.id !== threadId));
             if (selectedThread?.id === threadId) {
                 setSelectedThread(null);
                 setMessages([]);
@@ -144,13 +146,12 @@ export default function ChatPage() {
         const token = localStorage.getItem("token");
         const model = document.getElementById("model-select")?.value || "mixtral-8x7b-32768";
 
-        // Add user message immediately for better UX
         const userMessage = {
             role: "user",
             content: messageInput.trim(),
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
         };
-        setMessages(prev => [...prev, userMessage]);
+        setMessages((prev) => [...prev, userMessage]);
         const currentInput = messageInput;
         setMessageInput("");
         setLoading(true);
@@ -172,12 +173,11 @@ export default function ChatPage() {
             if (!res.ok) throw new Error("Failed to send message");
 
             const reply = await res.json();
-            setMessages(prev => [...prev, reply]);
+            setMessages((prev) => [...prev, reply]);
         } catch (err) {
             console.error("Error sending message:", err);
             setError("Failed to send message");
-            // Remove the optimistically added message on error
-            setMessages(prev => prev.slice(0, -1));
+            setMessages((prev) => prev.slice(0, -1));
             setMessageInput(currentInput);
         } finally {
             setLoading(false);
@@ -229,19 +229,9 @@ export default function ChatPage() {
                 </header>
 
                 {error && (
-                    <div style={{
-                        backgroundColor: "#f8d7da",
-                        color: "#721c24",
-                        padding: "0.75rem 1.25rem",
-                        marginBottom: "1rem",
-                        border: "1px solid #f5c6cb",
-                        borderRadius: "0.25rem"
-                    }}>
+                    <div className={styles.errorBanner}>
                         {error}
-                        <button
-                            onClick={() => setError("")}
-                            style={{ float: "right", background: "none", border: "none", fontSize: "1.2em" }}
-                        >
+                        <button onClick={() => setError("")} className={styles.errorClose}>
                             ×
                         </button>
                     </div>
@@ -249,19 +239,9 @@ export default function ChatPage() {
 
                 <div className="center-container">
                     <aside className="threads-list">
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                        <div className={styles.threadHeader}>
                             <h2>Conversations</h2>
-                            <button
-                                onClick={() => setShowNewThreadModal(true)}
-                                style={{
-                                    background: "#007bff",
-                                    color: "white",
-                                    border: "none",
-                                    padding: "0.25rem 0.5rem",
-                                    borderRadius: "4px",
-                                    cursor: "pointer"
-                                }}
-                            >
+                            <button onClick={() => setShowNewThreadModal(true)} className={styles.newThreadButton}>
                                 + New
                             </button>
                         </div>
@@ -270,23 +250,13 @@ export default function ChatPage() {
                             {threads.map((thread) => (
                                 <div
                                     key={thread.id}
-                                    className={`thread-item ${
-                                        selectedThread?.id === thread.id ? "selected" : ""
-                                    }`}
+                                    className={`thread-item ${styles.threadItem} ${selectedThread?.id === thread.id ? "selected" : ""}`}
                                     onClick={() => handleThreadSelect(thread)}
-                                    style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
                                 >
                                     <span>{thread.title || thread.threadName}</span>
                                     <button
                                         onClick={(e) => handleDeleteThread(thread.id, e)}
-                                        style={{
-                                            background: "none",
-                                            border: "none",
-                                            color: "#dc3545",
-                                            cursor: "pointer",
-                                            padding: "0.25rem",
-                                            fontSize: "0.9em"
-                                        }}
+                                        className={styles.deleteButton}
                                         title="Delete conversation"
                                     >
                                         🗑️
@@ -315,120 +285,61 @@ export default function ChatPage() {
                                     <div className="message bot">Loading messages...</div>
                                 ) : (
                                     messages.map((msg, index) => (
-                                        <div
-                                            key={index}
-                                            className={`message ${
-                                                msg.role === "user" ? "user" : "bot"
-                                            }`}
-                                        >
-                                            <div>{msg.content}</div>
-                                            {msg.timestamp && (
-                                                <div style={{
-                                                    fontSize: "0.8em",
-                                                    opacity: 0.7,
-                                                    marginTop: "0.25rem"
-                                                }}>
-                                                    {formatTimestamp(msg.timestamp)}
-                                                </div>
-                                            )}
+                                        <div key={index} className={`message ${msg.role === "user" ? "user" : "bot"}`}>
+                                            {msg.content}
+                                            <div className={styles.messageTimestamp}>{formatTimestamp(msg.timestamp)}</div>
                                         </div>
                                     ))
                                 )}
-                                {loading && (
-                                    <div className="message bot">
-                                        <div>Thinking...</div>
-                                    </div>
-                                )}
                             </div>
 
-                            <div className="input-container">
-                                <input
-                                    type="text"
-                                    placeholder={selectedThread ? "Type a message…" : "Select a conversation first"}
-                                    value={messageInput}
-                                    onChange={(e) => setMessageInput(e.target.value)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === "Enter" && !e.shiftKey) {
-                                            e.preventDefault();
-                                            handleSendMessage();
-                                        }
-                                    }}
-                                    disabled={!selectedThread || loading}
-                                />
-                                <button
-                                    onClick={handleSendMessage}
-                                    disabled={!selectedThread || loading || !messageInput.trim()}
-                                >
-                                    ➤
-                                </button>
-                            </div>
+                            {selectedThread && (
+                                <div className="input-container">
+                                    <input
+                                        type="text"
+                                        placeholder={selectedThread ? "Type a message…" : "Select a conversation first"}
+                                        value={messageInput}
+                                        onChange={(e) => setMessageInput(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter" && !e.shiftKey) {
+                                                e.preventDefault();
+                                                handleSendMessage();
+                                            }
+                                        }}
+                                        disabled={!selectedThread || loading}
+                                    />
+                                    <button
+                                        onClick={handleSendMessage}
+                                        disabled={!selectedThread || loading || !messageInput.trim()}
+                                    >
+                                        ➤
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </main>
                 </div>
 
-                {/* New Thread Modal */}
                 {showNewThreadModal && (
-                    <div style={{
-                        position: "fixed",
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        backgroundColor: "rgba(0,0,0,0.5)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        zIndex: 1000
-                    }}>
-                        <div style={{
-                            backgroundColor: "white",
-                            padding: "2rem",
-                            borderRadius: "8px",
-                            minWidth: "300px"
-                        }}>
-                            <h3>New Conversation</h3>
+                    <div className={styles.newThreadModalOverlay}>
+                        <div className={styles.newThreadModal}>
+                            <h3>Create New Conversation</h3>
                             <input
                                 type="text"
                                 placeholder="Enter conversation title"
                                 value={newThreadTitle}
                                 onChange={(e) => setNewThreadTitle(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === "Enter") handleCreateThread();
-                                    if (e.key === "Escape") setShowNewThreadModal(false);
-                                }}
-                                style={{
-                                    width: "100%",
-                                    padding: "0.5rem",
-                                    marginBottom: "1rem",
-                                    border: "1px solid #ddd",
-                                    borderRadius: "4px"
-                                }}
+                                className={styles.modalInput}
                                 autoFocus
                             />
-                            <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
-                                <button
-                                    onClick={() => setShowNewThreadModal(false)}
-                                    style={{
-                                        padding: "0.5rem 1rem",
-                                        border: "1px solid #ddd",
-                                        borderRadius: "4px",
-                                        background: "white",
-                                        cursor: "pointer"
-                                    }}
-                                >
+                            <div className={styles.modalButtonGroup}>
+                                <button onClick={() => setShowNewThreadModal(false)} className={styles.modalCancel}>
                                     Cancel
                                 </button>
                                 <button
                                     onClick={handleCreateThread}
                                     disabled={!newThreadTitle.trim()}
-                                    style={{
-                                        padding: "0.5rem 1rem",
-                                        border: "none",
-                                        borderRadius: "4px",
-                                        background: "#007bff",
-                                        color: "white",
-                                        cursor: "pointer"
-                                    }}
+                                    className={styles.modalCreate}
                                 >
                                     Create
                                 </button>
@@ -436,8 +347,6 @@ export default function ChatPage() {
                         </div>
                     </div>
                 )}
-
-                <footer>© 2025 Chat App, Inc.</footer>
             </div>
         </>
     );
