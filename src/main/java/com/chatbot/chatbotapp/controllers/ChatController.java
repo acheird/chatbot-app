@@ -33,20 +33,20 @@ public class ChatController {
         }
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getChatsByUser(@PathVariable Long userId) {
-
-        if (!SecurityUtils.canAccessUser(userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
-        }
-
-        try {
-            List<Chat> chats = chatService.getChatsByUserId(userId);
-            return ResponseEntity.ok(chats);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        }
-    }
+//    @GetMapping("/user/{userId}")
+//    public ResponseEntity<?> getChatsByUser(@PathVariable Long userId) {
+//
+//        if (!SecurityUtils.canAccessUser(userId)) {
+//            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied");
+//        }
+//
+//        try {
+//            List<Chat> chats = chatService.getChatsByUserId(userId);
+//            return ResponseEntity.ok(chats);
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+//        }
+//    }
 
     @GetMapping("/my-chats")
     public ResponseEntity<?> getMyChats() {
@@ -57,7 +57,6 @@ public class ChatController {
 
         try {
             List<Chat> chats = chatService.getChatsByUserId(currentUserId);
-            // Add @JsonIgnore to any circular references in your Chat entity
             return ResponseEntity.ok(chats);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
