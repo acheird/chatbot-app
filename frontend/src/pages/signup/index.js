@@ -88,10 +88,8 @@ export default function SignupPage() {
                 return;
             }
 
-
             const data = await response.json();
 
-            // Show success message and redirect to login
             alert("Account created successfully! Please log in.");
             router.push("/login");
         } catch (error) {
@@ -216,7 +214,6 @@ export default function SignupPage() {
                         </div>
                     </form>
                 </main>
-
                 <footer>© 2025 Chat App, Inc.</footer>
             </div>
         </>
