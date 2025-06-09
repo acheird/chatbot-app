@@ -25,9 +25,9 @@ public class UserService implements UserDetailsService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User saveUser(User user) {
-        return userRepository.save(user);
-    }
+//    public User saveUser(User user) {
+//        return userRepository.save(user);
+//    }
 
     public User registerUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -46,9 +46,9 @@ public class UserService implements UserDetailsService {
         userRepository.deleteById(id);
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }
+//    public List<User> getAllUsers() {
+//        return userRepository.findAll();
+//    }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
