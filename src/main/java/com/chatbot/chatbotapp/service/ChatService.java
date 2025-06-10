@@ -4,11 +4,10 @@ import com.chatbot.chatbotapp.model.Chat;
 import com.chatbot.chatbotapp.model.User;
 import com.chatbot.chatbotapp.repository.ChatRepository;
 import com.chatbot.chatbotapp.repository.UserRepository;
-import com.chatbot.chatbotapp.security.CustomUserDetails;
 import com.chatbot.chatbotapp.util.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +20,9 @@ public class ChatService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private SecurityUtils securityUtils;
 
     public Chat createChat(Long userId, String title) {
         User user = userRepository.findById(userId)
@@ -40,7 +42,9 @@ public class ChatService {
     }
 
     public Chat getChatByIdWithOwnershipCheck(Long chatId) {
-        User currentUser = getCurrentUser();
+        User currentUser = securityUtils.getCurrentUser()
+                .orElseThrow(() -> new RuntimeException("Unauthenticated: No user in security context"));
+
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new RuntimeException("Chat not found"));
 
@@ -51,6 +55,7 @@ public class ChatService {
         return chat;
     }
 
+    @Transactional
     public void deleteChat(Long chatId) {
         Chat chat = getChatByIdWithOwnershipCheck(chatId);
         chatRepository.delete(chat);
@@ -63,15 +68,8 @@ public class ChatService {
     }
 
     public List<Chat> getChatsForCurrentUser() {
-        User currentUser = getCurrentUser();
+        User currentUser = securityUtils.getCurrentUser()
+                .orElseThrow(() -> new RuntimeException("Unauthenticated: No user in security context"));
         return chatRepository.findByUser(currentUser);
-    }
-
-    private User getCurrentUser() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof CustomUserDetails customUserDetails) {
-            return customUserDetails.getUser();
-        }
-        throw new RuntimeException("Unauthenticated: No user in security context");
     }
 }

@@ -13,67 +13,57 @@ import java.util.Optional;
 @Component
 public class SecurityUtils {
 
-    private static UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public void setUserRepository(UserRepository userRepository) {
-        SecurityUtils.userRepository = userRepository;
+    public SecurityUtils(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
-    public static Long getCurrentUserId() {
+    public Long getCurrentUserId() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
             if (authentication != null && authentication.getPrincipal() instanceof Jwt jwt) {
-                String subject = jwt.getSubject();
-                return Long.parseLong(subject);
+                return Long.parseLong(jwt.getSubject());
             }
-
-            return null;
-        } catch (Exception e) {
-            return null;
+        } catch (Exception ignored) {
         }
+        return null;
     }
 
-    public static String getCurrentUserEmail() {
+    public String getCurrentUserEmail() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
             if (authentication != null && authentication.getPrincipal() instanceof Jwt jwt) {
                 return jwt.getClaimAsString("email");
             }
-
-            return null;
-        } catch (Exception e) {
-            return null;
+        } catch (Exception ignored) {
         }
+        return null;
     }
 
-    public static Optional<User> getCurrentUser() {
+    public Optional<User> getCurrentUser() {
         Long userId = getCurrentUserId();
-        if (userId == null || userRepository == null) {
-            return Optional.empty();
-        }
-
+        if (userId == null) return Optional.empty();
         return userRepository.findById(userId);
     }
 
-    public static boolean canAccessUser(Long targetUserId) {
+    public boolean canAccessUser(Long targetUserId) {
         Long currentUserId = getCurrentUserId();
         return currentUserId != null && currentUserId.equals(targetUserId);
     }
 
-    public static boolean isAuthenticated() {
+    public boolean isAuthenticated() {
         return getCurrentUserId() != null;
     }
 
-    public static void requireAuthentication() {
+    public void requireAuthentication() {
         if (!isAuthenticated()) {
             throw new RuntimeException("User not authenticated");
         }
     }
 
-    public static void requireOwnership(Long resourceOwnerId) {
+    public void requireOwnership(Long resourceOwnerId) {
         Long currentUserId = getCurrentUserId();
         if (currentUserId == null) {
             throw new RuntimeException("User not authenticated");

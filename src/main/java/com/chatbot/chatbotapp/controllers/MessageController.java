@@ -1,6 +1,5 @@
 package com.chatbot.chatbotapp.controllers;
 
-import com.chatbot.chatbotapp.model.Chat;
 import com.chatbot.chatbotapp.model.Message;
 import com.chatbot.chatbotapp.service.ChatService;
 import com.chatbot.chatbotapp.service.MessageService;
@@ -15,11 +14,20 @@ import java.util.List;
 @RequestMapping("/messages")
 public class MessageController {
 
-    @Autowired
-    private MessageService messageService;
+    private final MessageService messageService;
+    private final ChatService chatService;
+    private final SecurityUtils securityUtils;
 
     @Autowired
-    private ChatService chatService;
+    public MessageController(
+            MessageService messageService,
+            ChatService chatService,
+            SecurityUtils securityUtils
+    ) {
+        this.messageService = messageService;
+        this.chatService = chatService;
+        this.securityUtils = securityUtils;
+    }
 
     @PostMapping("/send")
     public ResponseEntity<?> sendMessage(
@@ -27,19 +35,22 @@ public class MessageController {
             @RequestParam String content,
             @RequestParam(defaultValue = "mixtral-8x7b-32768") String model
     ) {
-        Long userId = SecurityUtils.getCurrentUserId();
+        Long userId = securityUtils.getCurrentUserId();
         if (userId == null) return ResponseEntity.status(401).body("User not authenticated");
 
-        if (content == null || content.isBlank())
+        if (content == null || content.isBlank()) {
             return ResponseEntity.badRequest().body("Message content cannot be empty");
+        }
 
-        if (content.length() > 4000)
+        if (content.length() > 4000) {
             return ResponseEntity.badRequest().body("Message too long (max 4000 characters)");
+        }
 
         return chatService.getChatById(chatId)
                 .map(chat -> {
-                    if (!chat.getUser().getId().equals(userId))
+                    if (!chat.getUser().getId().equals(userId)) {
                         return ResponseEntity.status(403).body("Access denied");
+                    }
 
                     Message reply = messageService.createMessageAndGetCompletion(chatId, content.trim(), model);
                     return ResponseEntity.ok(reply);
@@ -49,13 +60,14 @@ public class MessageController {
 
     @GetMapping
     public ResponseEntity<?> getMessages(@RequestParam Long chatId) {
-        Long userId = SecurityUtils.getCurrentUserId();
+        Long userId = securityUtils.getCurrentUserId();
         if (userId == null) return ResponseEntity.status(401).body("User not authenticated");
 
         return chatService.getChatById(chatId)
                 .map(chat -> {
-                    if (!chat.getUser().getId().equals(userId))
+                    if (!chat.getUser().getId().equals(userId)) {
                         return ResponseEntity.status(403).body("Access denied");
+                    }
 
                     List<Message> messages = messageService.getMessagesForChat(chatId);
                     return ResponseEntity.ok(messages);
