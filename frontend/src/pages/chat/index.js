@@ -2,7 +2,7 @@ import Head from "next/head";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import styles from "@/styles/chatPage.module.css";
-
+import { apiFetch } from "@/utils/apiFetch";
 
 export default function ChatPage() {
     const [threads, setThreads] = useState([]);
@@ -33,24 +33,8 @@ export default function ChatPage() {
     }, [router]);
 
     const loadThreads = async () => {
-        const token = localStorage.getItem("token");
         try {
-            const res = await fetch("http://localhost:8080/chats/my-chats", {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            if (!res.ok) {
-                if (res.status === 401) {
-                    localStorage.removeItem("token");
-                    localStorage.removeItem("user");
-                    router.push("/login");
-                    return;
-                }
-                throw new Error("Failed to load threads");
-            }
-
+            const res = await apiFetch("http://localhost:8080/chats/my-chats", {}, router);
             const data = await res.json();
             setThreads(data);
         } catch (err) {
@@ -63,17 +47,9 @@ export default function ChatPage() {
         setSelectedThread(thread);
         setLoading(true);
         setError("");
-        const token = localStorage.getItem("token");
 
         try {
-            const res = await fetch(`http://localhost:8080/messages?chatId=${thread.id}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            if (!res.ok) throw new Error("Failed to load messages");
-
+            const res = await apiFetch(`http://localhost:8080/messages?chatId=${thread.id}`, {}, router);
             const data = await res.json();
             setMessages(data);
         } catch (err) {
@@ -87,20 +63,16 @@ export default function ChatPage() {
     const handleCreateThread = async () => {
         if (!newThreadTitle.trim()) return;
 
-        const token = localStorage.getItem("token");
         try {
-            const res = await fetch("http://localhost:8080/chats", {
+            const res = await apiFetch("http://localhost:8080/chats", {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${token}`,
                     "Content-Type": "application/x-www-form-urlencoded",
                 },
                 body: new URLSearchParams({
                     title: newThreadTitle,
                 }),
-            });
-
-            if (!res.ok) throw new Error("Failed to create thread");
+            }, router);
 
             const newThread = await res.json();
             setThreads((prev) => [newThread, ...prev]);
@@ -118,16 +90,10 @@ export default function ChatPage() {
         e.stopPropagation();
         if (!confirm("Are you sure you want to delete this conversation?")) return;
 
-        const token = localStorage.getItem("token");
         try {
-            const res = await fetch(`http://localhost:8080/chats/${threadId}`, {
+            await apiFetch(`http://localhost:8080/chats/${threadId}`, {
                 method: "DELETE",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            if (!res.ok) throw new Error("Failed to delete thread");
+            }, router);
 
             setThreads((prev) => prev.filter((t) => t.id !== threadId));
             if (selectedThread?.id === threadId) {
@@ -143,9 +109,7 @@ export default function ChatPage() {
     const handleSendMessage = async () => {
         if (!messageInput.trim() || !selectedThread) return;
 
-        const token = localStorage.getItem("token");
         const model = document.getElementById("model-select")?.value || "mixtral-8x7b-32768";
-
         const userMessage = {
             role: "user",
             content: messageInput.trim(),
@@ -157,10 +121,9 @@ export default function ChatPage() {
         setLoading(true);
 
         try {
-            const res = await fetch("http://localhost:8080/messages/send", {
+            const res = await apiFetch("http://localhost:8080/messages/send", {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${token}`,
                     "Content-Type": "application/x-www-form-urlencoded",
                 },
                 body: new URLSearchParams({
@@ -168,9 +131,7 @@ export default function ChatPage() {
                     content: currentInput,
                     model,
                 }),
-            });
-
-            if (!res.ok) throw new Error("Failed to send message");
+            }, router);
 
             const reply = await res.json();
             setMessages((prev) => [...prev, reply]);
