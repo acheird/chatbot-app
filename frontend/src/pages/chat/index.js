@@ -171,8 +171,8 @@ export default function ChatPage() {
                                     <strong>{user?.name}</strong>
                                     <div style={{ fontSize: "0.9em", color: "#666" }}>{user?.email}</div>
                                 </div>
-                                <a href="#">Profile</a>
-                                <a href="#">Settings</a>
+                                <a href="/profile">Profile</a>
+                                <a href="/settings">Settings</a>
                                 <a
                                     href="#"
                                     onClick={() => {
