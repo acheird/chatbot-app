@@ -14,31 +14,46 @@ export default function SignupPage() {
     const [error, setError] = useState("");
 
     useEffect(() => {
-        const checkToken = async () => {
+        const checkAndLoad = async () => {
             const token = localStorage.getItem("token");
-            if (!token) return;
+            const userData = localStorage.getItem("user");
+
+            if (!token) {
+                router.push("/login");
+                return;
+            }
 
             try {
                 const res = await fetch("http://localhost:8080/auth/verify", {
                     method: "GET",
                     headers: {
-                        "Authorization": `Bearer ${token}`,
-                    }
+                        Authorization: `Bearer ${token}`,
+                    },
                 });
 
-                if (res.ok) {
-                    router.push("/chat"); // Token valid
-                } else {
-                    localStorage.removeItem("token"); // Invalid or expired
+                if (!res.ok) {
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("user");
+                    router.push("/login");
+                    return;
                 }
-            } catch (error) {
+
+                if (userData) {
+                    setUser(JSON.parse(userData));
+                }
+
+                loadThreads(); // Now it's safe to load threads
+            } catch (err) {
                 localStorage.removeItem("token");
-                console.error("Token validation failed:", error);
+                localStorage.removeItem("user");
+                router.push("/login");
+                console.error("Token validation failed:", err);
             }
         };
 
-        checkToken();
+        checkAndLoad();
     }, [router]);
+
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
