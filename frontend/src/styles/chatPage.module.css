@@ -1,19 +1,34 @@
 .errorBanner {
   background-color: #f8d7da;
   color: #721c24;
-  padding: 0.75rem 1.25rem;
+  padding: 1rem 1.5rem;
   margin-bottom: 1rem;
   border: 1px solid #f5c6cb;
-  border-radius: 0.25rem;
+  border-radius: 8px;
   position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .errorClose {
-  float: right;
+  position: absolute;
+  top: 12px;
+  right: 16px;
   background: none;
   border: none;
   font-size: 1.2em;
   cursor: pointer;
+  color: #721c24;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.errorClose:hover {
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 .threadHeader {
@@ -23,39 +38,58 @@
   margin-bottom: 1rem;
 }
 
+.threadHeader h2 {
+  margin: 0;
+  color: #2d3748;
+}
+
 .newThreadButton {
   background: #007bff;
   color: white;
   border: none;
-  padding: 0.4rem 0.9rem;
-  border-radius: 6px;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 0.95rem;
   font-weight: 500;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.25s, transform 0.15s ease;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+  transition: all 0.2s ease;
 }
 
 .newThreadButton:hover {
   background-color: #0056d2;
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
 }
 
 .newThreadButton:active {
   background-color: #0047b3;
-  transform: scale(0.98);
+  transform: translateY(0);
 }
 
 .newThreadButton:focus {
-  outline: 2px solid #80bdff;
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.3);
 }
-
 
 .threadItem {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 0.75rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  margin-bottom: 0.25rem;
+}
+
+.threadItem:hover {
+  background-color: #f8f9fa;
+  transform: translateX(2px);
+}
+
+.threadItem.selected {
+  background-color: #e3f2fd;
+  border-left: 3px solid #007bff;
 }
 
 .deleteButton {
@@ -63,16 +97,27 @@
   border: none;
   color: #dc3545;
   cursor: pointer;
-  padding: 0.25rem;
+  padding: 0.5rem;
   font-size: 0.9em;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  opacity: 0.7;
+}
+
+.deleteButton:hover {
+  background-color: rgba(220, 53, 69, 0.1);
+  opacity: 1;
+  transform: scale(1.1);
 }
 
 .messageTimestamp {
   font-size: 0.8em;
   opacity: 0.7;
   margin-top: 0.25rem;
+  color: #6c757d;
 }
 
+/* Enhanced modal */
 .newThreadModalOverlay {
   position: fixed;
   top: 0;
@@ -89,78 +134,127 @@
 .newThreadModal {
   background-color: white;
   padding: 2rem;
-  border-radius: 8px;
-  min-width: 300px;
+  border-radius: 12px;
+  min-width: 350px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.newThreadModal h3 {
+  margin: 0 0 1.5rem 0;
+  color: #2d3748;
+  font-size: 1.25rem;
 }
 
 .modalInput {
   width: 100%;
-  padding: 0.5rem;
-  margin-bottom: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 0.75rem;
+  margin-bottom: 1.5rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.modalInput:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
 .modalButtonGroup {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
   justify-content: flex-end;
 }
 
 .modalCancel {
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.2rem;
   border: 1px solid #ddd;
-  border-radius: 4px;
+  border-radius: 6px;
   background: white;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modalCancel:hover {
+  background-color: #f8f9fa;
+  border-color: #adb5bd;
 }
 
 .modalCreate {
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.2rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   background: #007bff;
   color: white;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-/* Input Bar */
+.modalCreate:hover {
+  background-color: #0056d2;
+}
+
+.modalCreate:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Improved input container */
 .input-container {
   display: flex;
-  padding: 0.75rem 1rem;
-  border-top: 1px solid #e5eea;
+  padding: 1rem;
+  border-top: 1px solid #e5e5ea;
   background: #fafbfc;
+  gap: 0.75rem;
+  align-items: center;
 }
 
+.input-container input,
 .input-container textarea {
   flex: 1;
-  padding: 0.5rem 1rem;
-  border-radius: 999px;
+  padding: 0.75rem 1rem;
+  border-radius: 20px;
   border: 1px solid #d1d5db;
   outline: none;
   resize: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s ease;
   font-family: inherit;
   font-size: 1rem;
   line-height: 1.25rem;
 }
 
+.input-container input:focus,
 .input-container textarea:focus {
   border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
 .input-container button {
-  margin-left: 0.75rem;
-  padding: 0 1.25rem;
-  border-radius: 999px;
+  padding: 0.75rem;
+  border-radius: 50%;
   border: none;
-  background: #2d2f3e;
-  color: #f3f3ff;
+  background: #4f46e5;
+  color: white;
   cursor: pointer;
   font-size: 1.2rem;
-  transition: background 0.2s;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
 }
 
-.input-container button:hover {
-  background: #4f46e5;
+.input-container button:hover:not(:disabled) {
+  background: #4338ca;
+  transform: scale(1.05);
+}
+
+.input-container button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }
