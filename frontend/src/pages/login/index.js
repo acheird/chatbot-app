@@ -55,8 +55,7 @@ export default function LoginPage() {
             });
 
             if (!response.ok) {
-                const text = await response.text(); // read once
-
+                const text = await response.text();
                 let errorMsg = "Login failed";
                 try {
                     const errorData = JSON.parse(text);
@@ -65,7 +64,10 @@ export default function LoginPage() {
                     if (text) errorMsg = text;
                 }
 
-                throw new Error(errorMsg);
+                // Instead of throwing, set error state and stop here:
+                setError(errorMsg);
+                setLoading(false);
+                return;
             }
 
             const data = await response.json();
@@ -84,6 +86,7 @@ export default function LoginPage() {
             setLoading(false);
         }
     };
+
 
     return (
         <>
