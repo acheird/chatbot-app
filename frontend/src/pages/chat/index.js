@@ -109,7 +109,7 @@ export default function ChatPage() {
     const handleSendMessage = async () => {
         if (!messageInput.trim() || !selectedThread) return;
 
-        const model = document.getElementById("model-select")?.value || "mixtral-8x7b-32768";
+        const model = document.getElementById("model-select")?.value || "llama3-8b-8192";
         const userMessage = {
             role: "user",
             content: messageInput.trim(),
@@ -231,9 +231,8 @@ export default function ChatPage() {
                         <div className="chat-window">
                             <div className="chat-model-select">
                                 <select id="model-select">
-                                    <option value="llama3-8b-8192">llama3-8B</option>
+                                    <option value="llama3-8b-8192">llama3-8B (Default)</option>
                                     <option value="llama3-70b-8192">Llama3 70B</option>
-                                    <option value="gemma-7b-it">Gemma 7B</option>
                                 </select>
                             </div>
 
