@@ -40,7 +40,6 @@ export default function SignupPage() {
         checkToken();
     }, [router]);
 
-
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -49,36 +48,15 @@ export default function SignupPage() {
         }));
     };
 
-    const validateForm = () => {
-        if (!formData.email || !formData.password || !formData.username) {
-            setError("All fields are required");
-            return false;
-        }
-
-        if (formData.password.length < 6) {
-            setError("Password must be at least 6 characters long");
-            return false;
-        }
-
-        if (formData.password !== formData.confirmPassword) {
-            setError("Passwords do not match");
-            return false;
-        }
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(formData.email)) {
-            setError("Please enter a valid email address");
-            return false;
-        }
-
-        return true;
-    };
-
     const handleSignup = async (e) => {
         e.preventDefault();
         setError("");
 
-        if (!validateForm()) return;
+        // Only check password confirmation here since HTML can't do it
+        if (formData.password !== formData.confirmPassword) {
+            setError("Passwords do not match");
+            return;
+        }
 
         setLoading(true);
 
@@ -146,14 +124,7 @@ export default function SignupPage() {
                         <h2>Create Account</h2>
 
                         {error && (
-                            <div className="error-message" style={{
-                                color: 'red',
-                                marginBottom: '1rem',
-                                padding: '0.5rem',
-                                border: '1px solid red',
-                                borderRadius: '4px',
-                                backgroundColor: '#ffebee'
-                            }}>
+                            <div className="error-message">
                                 {error}
                             </div>
                         )}
@@ -199,7 +170,7 @@ export default function SignupPage() {
                                 required
                                 autoComplete="new-password"
                                 disabled={loading}
-                                minLength="6"
+                                minLength={6}
                             />
                         </div>
 
@@ -215,7 +186,7 @@ export default function SignupPage() {
                                 required
                                 autoComplete="new-password"
                                 disabled={loading}
-                                minLength="6"
+                                minLength={6}
                             />
                         </div>
 

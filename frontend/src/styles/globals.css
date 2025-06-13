@@ -52,7 +52,20 @@ header, footer { background: #2d2f3e; color: #f3f3ff; padding: 1rem 2rem; }
 .input-container button:hover { background: #4f46e5; }
 
 
+
+
+/* Signup Page */
+.error-message {
+  color: red;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  border: 1px solid red;
+  border-radius: 4px;
+  background-color: #ffebee;
+}
+
 /* Login Page */
+
 /* Content & Tabs */
 .content { flex: 1; display: flex; align-items: center; justify-content: center; padding: 2rem; }
 .tab-container { background: #fff; border-radius: 0.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); width: 100%; max-width: 420px; overflow: hidden; }

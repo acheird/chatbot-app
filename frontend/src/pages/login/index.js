@@ -39,7 +39,6 @@ export default function LoginPage() {
         verifyToken();
     }, [router]);
 
-
     const handleEmailChange = (e) => setEmail(e.target.value);
     const handlePasswordChange = (e) => setPassword(e.target.value);
 
@@ -51,29 +50,31 @@ export default function LoginPage() {
         try {
             const response = await fetch("http://localhost:8080/auth/login", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    email: email,
-                    password: password,
-                }),
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
             });
 
             if (!response.ok) {
-                const errorData = await response.text();
-                throw new Error(errorData || "Login failed");
+                const text = await response.text(); // read once
+
+                let errorMsg = "Login failed";
+                try {
+                    const errorData = JSON.parse(text);
+                    errorMsg = errorData.message || JSON.stringify(errorData);
+                } catch {
+                    if (text) errorMsg = text;
+                }
+
+                throw new Error(errorMsg);
             }
 
             const data = await response.json();
 
-            // Save JWT token and user info to localStorage
             localStorage.setItem("token", data.token);
-            localStorage.setItem("user", JSON.stringify({
-                id: data.id,
-                email: data.email,
-                name: data.name
-            }));
+            localStorage.setItem(
+                "user",
+                JSON.stringify({ id: data.id, email: data.email, name: data.name })
+            );
 
             setLoading(false);
             router.push("/chat");
@@ -94,11 +95,7 @@ export default function LoginPage() {
                 <header>
                     <div className="header-content">
                         <div className="header-brand">
-                            <img
-                                src="./ai.png"
-                                alt="Logo"
-                                className="header-logo"
-                            />
+                            <img src="./ai.png" alt="Logo" className="header-logo" />
                             <div className="header-title">Chat Application</div>
                         </div>
                     </div>
@@ -109,14 +106,7 @@ export default function LoginPage() {
                         <h2>Login</h2>
 
                         {error && (
-                            <div className="error-message" style={{
-                                color: 'red',
-                                marginBottom: '1rem',
-                                padding: '0.5rem',
-                                border: '1px solid red',
-                                borderRadius: '4px',
-                                backgroundColor: '#ffebee'
-                            }}>
+                            <div className="error-message">
                                 {error}
                             </div>
                         )}
@@ -150,7 +140,11 @@ export default function LoginPage() {
                         </div>
 
                         <div className="form-actions">
-                            <button type="submit" disabled={loading} className="btn btn-primary">
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="btn btn-primary"
+                            >
                                 {loading ? "Signing In…" : "Sign In"}
                             </button>
                         </div>
@@ -158,7 +152,10 @@ export default function LoginPage() {
                         <div className="form-footer">
                             <p>
                                 Don't have an account?{" "}
-                                <a href="/signup" style={{ color: "#007bff", textDecoration: "none" }}>
+                                <a
+                                    href="/signup"
+                                    style={{ color: "#007bff", textDecoration: "none" }}
+                                >
                                     Sign up here
                                 </a>
                             </p>
