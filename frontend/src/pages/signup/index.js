@@ -1,6 +1,7 @@
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { verifyToken } from "@/utils/auth";
 
 export default function SignupPage() {
     const router = useRouter();
@@ -14,46 +15,8 @@ export default function SignupPage() {
     const [error, setError] = useState("");
 
     useEffect(() => {
-        const checkAndLoad = async () => {
-            const token = localStorage.getItem("token");
-            const userData = localStorage.getItem("user");
-
-            if (!token) {
-                router.push("/login");
-                return;
-            }
-
-            try {
-                const res = await fetch("http://localhost:8080/auth/verify", {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!res.ok) {
-                    localStorage.removeItem("token");
-                    localStorage.removeItem("user");
-                    router.push("/login");
-                    return;
-                }
-
-                if (userData) {
-                    setUser(JSON.parse(userData));
-                }
-
-                loadThreads(); // Now it's safe to load threads
-            } catch (err) {
-                localStorage.removeItem("token");
-                localStorage.removeItem("user");
-                router.push("/login");
-                console.error("Token validation failed:", err);
-            }
-        };
-
-        checkAndLoad();
+        verifyToken(router); // Redirects if token is valid
     }, [router]);
-
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -67,7 +30,6 @@ export default function SignupPage() {
         e.preventDefault();
         setError("");
 
-        // Only check password confirmation here since HTML can't do it
         if (formData.password !== formData.confirmPassword) {
             setError("Passwords do not match");
             return;

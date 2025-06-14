@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import styles from "@/styles/chatPage.module.css";
 import { apiFetch } from "@/utils/apiFetch";
+import { verifyToken } from "@/utils/auth";
 
 export default function ChatPage() {
     const [threads, setThreads] = useState([]);
@@ -17,19 +18,11 @@ export default function ChatPage() {
     const router = useRouter();
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        const userData = localStorage.getItem("user");
-
-        if (!token) {
-            router.push("/login");
-            return;
-        }
-
-        if (userData) {
-            setUser(JSON.parse(userData));
-        }
-
-        loadThreads();
+        const init = async () => {
+            const valid = await verifyToken(router, setUser);
+            if (valid) loadThreads();
+        };
+        init();
     }, [router]);
 
     const loadThreads = async () => {

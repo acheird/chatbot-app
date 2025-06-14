@@ -30,7 +30,6 @@ public class Chat {
     @JsonIgnoreProperties("chat")
     private List<Message> messages = new ArrayList<>();
 
-    // Constructors
     public Chat() {
         this.createdAt = LocalDateTime.now();
     }

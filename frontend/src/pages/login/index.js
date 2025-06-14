@@ -1,6 +1,7 @@
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { verifyToken } from "@/utils/auth";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -10,33 +11,7 @@ export default function LoginPage() {
     const [error, setError] = useState("");
 
     useEffect(() => {
-        const verifyToken = async () => {
-            const token = localStorage.getItem("token");
-            if (!token) return;
-
-            try {
-                const res = await fetch("http://localhost:8080/auth/verify", {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (res.ok) {
-                    router.push("/chat");
-                } else {
-                    // Invalid or expired token
-                    localStorage.removeItem("token");
-                    localStorage.removeItem("user");
-                }
-            } catch (err) {
-                console.error("Token verification failed", err);
-                localStorage.removeItem("token");
-                localStorage.removeItem("user");
-            }
-        };
-
-        verifyToken();
+        verifyToken(router); // Redirects if token is valid
     }, [router]);
 
     const handleEmailChange = (e) => setEmail(e.target.value);
