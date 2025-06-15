@@ -1,24 +1,26 @@
-export async function apiFetch(url, options = {}, router) {
+// utils/apiFetch.js
+export async function apiFetch(url, options = {}) {
     const token = localStorage.getItem("token");
 
-    const res = await fetch(url, {
-        ...options,
-        headers: {
-            ...options.headers,
-            Authorization: `Bearer ${token}`,
-        },
-    });
+    try {
+        const res = await fetch(url, {
+            ...options,
+            headers: {
+                ...options.headers,
+                Authorization: `Bearer ${token}`,
+            },
+        });
 
-    if (res.status === 401 || res.status === 403 || res.status === 404) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-
-        if (router) {
-            router.push("/login");
+        if (res.status === 401 || res.status === 403) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            window.location.href = '/login';
+            throw new Error("Unauthorized");
         }
 
-        throw new Error("Unauthorized or user not found");
+        return res;
+    } catch (error) {
+        console.error("API request failed:", error);
+        throw error;
     }
-
-    return res;
 }

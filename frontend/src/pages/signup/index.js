@@ -1,7 +1,6 @@
 import Head from "next/head";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/router";
-import { verifyToken } from "@/utils/auth";
 
 export default function SignupPage() {
     const router = useRouter();
@@ -13,10 +12,6 @@ export default function SignupPage() {
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-
-    useEffect(() => {
-        verifyToken(router); // Redirects if token is valid
-    }, [router]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;

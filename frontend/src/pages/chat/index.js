@@ -3,27 +3,25 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import styles from "@/styles/chatPage.module.css";
 import { apiFetch } from "@/utils/apiFetch";
-import { verifyToken } from "@/utils/auth";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function ChatPage() {
+    const { user, logout } = useAuth();
     const [threads, setThreads] = useState([]);
     const [messages, setMessages] = useState([]);
     const [selectedThread, setSelectedThread] = useState(null);
     const [messageInput, setMessageInput] = useState("");
     const [loading, setLoading] = useState(false);
-    const [user, setUser] = useState(null);
     const [error, setError] = useState("");
     const [showNewThreadModal, setShowNewThreadModal] = useState(false);
     const [newThreadTitle, setNewThreadTitle] = useState("");
     const router = useRouter();
 
     useEffect(() => {
-        const init = async () => {
-            const valid = await verifyToken(router, setUser);
-            if (valid) loadThreads();
-        };
-        init();
-    }, [router]);
+        if (user) {
+            loadThreads();
+        }
+    }, [user]);
 
     const loadThreads = async () => {
         try {
@@ -166,14 +164,7 @@ export default function ChatPage() {
                                 </div>
                                 <a href="/profile">Profile</a>
                                 <a href="/settings">Settings</a>
-                                <a
-                                    href="#"
-                                    onClick={() => {
-                                        localStorage.removeItem("token");
-                                        localStorage.removeItem("user");
-                                        router.push("/login");
-                                    }}
-                                >
+                                <a href="#" onClick={logout}>
                                     Logout
                                 </a>
                             </div>
@@ -250,7 +241,7 @@ export default function ChatPage() {
                                 <div className="input-container">
                                     <input
                                         type="text"
-                                        placeholder={selectedThread ? "Type a message…" : "Select a conversation first"}
+                                        placeholder="Type a message…"
                                         value={messageInput}
                                         onChange={(e) => setMessageInput(e.target.value)}
                                         onKeyDown={(e) => {
@@ -259,11 +250,11 @@ export default function ChatPage() {
                                                 handleSendMessage();
                                             }
                                         }}
-                                        disabled={!selectedThread || loading}
+                                        disabled={loading}
                                     />
                                     <button
                                         onClick={handleSendMessage}
-                                        disabled={!selectedThread || loading || !messageInput.trim()}
+                                        disabled={loading || !messageInput.trim()}
                                     >
                                         ➤
                                     </button>

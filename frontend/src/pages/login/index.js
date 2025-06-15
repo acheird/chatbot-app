@@ -1,7 +1,6 @@
 import Head from "next/head";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/router";
-import { verifyToken } from "@/utils/auth";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -9,10 +8,6 @@ export default function LoginPage() {
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-
-    useEffect(() => {
-        verifyToken(router); // Redirects if token is valid
-    }, [router]);
 
     const handleEmailChange = (e) => setEmail(e.target.value);
     const handlePasswordChange = (e) => setPassword(e.target.value);
