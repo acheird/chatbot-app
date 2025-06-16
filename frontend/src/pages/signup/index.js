@@ -1,21 +1,25 @@
 import Head from "next/head";
 import { useState } from "react";
 import { useRouter } from "next/router";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function SignupPage() {
     const router = useRouter();
+    const { login } = useAuth();
+
     const [formData, setFormData] = useState({
         email: "",
         password: "",
         username: "",
         confirmPassword: ""
     });
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
             [name]: value
         }));
@@ -36,33 +40,30 @@ export default function SignupPage() {
             const response = await fetch("http://localhost:8080/auth/signup", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json",
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
                     email: formData.email,
                     password: formData.password,
                     username: formData.username
-                }),
+                })
             });
 
             if (!response.ok) {
                 let errorMessage = "Signup failed";
                 try {
                     const errorData = await response.json();
-                    errorMessage = errorData.error || errorData.message || JSON.stringify(errorData) || errorMessage;
+                    errorMessage = errorData.error || errorData.message || JSON.stringify(errorData);
                 } catch {
                     const errorText = await response.text();
                     if (errorText) errorMessage = errorText;
                 }
                 setError(errorMessage);
-                setLoading(false);
                 return;
             }
 
-            const data = await response.json();
-
-            alert("Account created successfully! Please log in.");
-            router.push("/login");
+            // Auto-login after successful signup
+            await login(formData.email, formData.password);
         } catch (error) {
             console.error("Signup failed", error);
             setError(error.message || "Signup failed. Please try again.");
