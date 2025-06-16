@@ -1,13 +1,13 @@
-Chat Application with Spring Boot Backend & React Frontend
+# Chat Application with Spring Boot Backend & React Frontend
 
 Project Overview
 This project is a simple chat application where users can sign up, log in, create chats, send messages, and receive responses from an AI assistant powered by Groq LLM API.
 
-# Chat Application Frontend
+## Chat Application Frontend
 
 This is a Next.js React frontend application for a chat system with user authentication.
 
-## Features
+### Features
 
 - User signup, login, and logout.
 - Token-based authentication with protected routes.
@@ -15,7 +15,7 @@ This is a Next.js React frontend application for a chat system with user authent
 - Sending and receiving messages in real-time.
 - Responsive UI with modals and error handling.
 
-## Architecture Overview
+### Architecture Overview
 
 - **Authentication:** Managed globally with `AuthContext` using React Context API.
 - **API Integration:** All API calls go through `apiFetch` which attaches tokens and handles unauthorized responses.
@@ -23,7 +23,7 @@ This is a Next.js React frontend application for a chat system with user authent
 - **State Management:** React hooks (`useState`, `useEffect`) manage UI state.
 - **Components:** Pages for login, signup, and chat interface.
 
-## Getting Started
+### Getting Started
 
 1. Clone the repository.
 2. Run `npm install` to install dependencies.
@@ -32,9 +32,9 @@ This is a Next.js React frontend application for a chat system with user authent
    npm run dev
 
 
-# Chat Application Backend:
+## Chat Application Backend:
 
-## Features
+### Features
 
 - User registration and authentication with JWT
 - User management (CRUD operations)
@@ -43,7 +43,7 @@ This is a Next.js React frontend application for a chat system with user authent
 - Integration with Groq API for AI completions
 - Secure access control with ownership checks
 
-## Technologies Used
+### Technologies Used
 
 - Java 17+
 - Spring Boot (Spring Data JPA, Spring Security)
